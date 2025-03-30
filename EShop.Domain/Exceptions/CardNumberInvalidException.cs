@@ -15,6 +15,12 @@ namespace EShop.Domain.Exceptions
         {
             StatusCode = 406;
         }
+
+        public CardNumberInvalidException(Exception innerException)
+            : base("Card issuer is not supported", innerException)
+        {
+            StatusCode = 406;
+        }
     }
 
 }

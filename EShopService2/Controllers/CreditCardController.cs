@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+﻿using EShop.Application;
+using EShop.Domain.Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace EShopService.Controllers
 {
@@ -8,36 +9,33 @@ namespace EShopService.Controllers
     [ApiController]
     public class CreditCardController : ControllerBase
     {
-        // GET: api/<CreditCardController>
+        protected ICreditCardService _creditCardService;
+
+        public CreditCardController(ICreditCardService creditCardService)
+        {
+            _creditCardService = creditCardService;
+        }
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get(string cardNumber)
         {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<CreditCardController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<CreditCardController>
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT api/<CreditCardController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/<CreditCardController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            try
+            {
+                _creditCardService.ValidateCardNumber(cardNumber);
+                return Ok(new { cardProvider = _creditCardService.GetCardType(cardNumber) });
+            }
+            catch (CardNumberTooLongException ex)
+            {
+                return StatusCode((int)HttpStatusCode.RequestUriTooLong, new { error = "The card number is too long", code = (int)HttpStatusCode.RequestUriTooLong });
+            }
+            catch (CardNumberTooShortException)
+            {
+                return BadRequest(new { error = "The card number is too short", code = (int)HttpStatusCode.BadRequest });
+            }
+            catch (CardNumberInvalidException)
+            {
+                return BadRequest(new { error = "Invalid Card Number", code = (int)HttpStatusCode.BadRequest });
+            }
         }
     }
 }

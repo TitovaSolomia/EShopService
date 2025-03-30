@@ -9,8 +9,15 @@ namespace EShop.Domain.Exceptions
     public class CardNumberTooShortException : Exception
     {
         public int StatusCode { get; }
+
         public CardNumberTooShortException()
             : base("Card number is too short")
+        {
+            StatusCode = 400;
+        }
+
+        public CardNumberTooShortException(Exception innerException)
+            : base("Card number is too short", innerException)
         {
             StatusCode = 400;
         }
