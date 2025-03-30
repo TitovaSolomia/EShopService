@@ -3,10 +3,10 @@ using System.Text.RegularExpressions;
 using EShop.Domain.Enums;
 using EShop.Domain.Exceptions;
 
-namespace EShop.Application;
+namespace EShop.Application.Services;
 public class CreditCardService : ICreditCardService
 {
-    public Boolean ValidateCard(string cardNumber)
+    public bool ValidateCard(string cardNumber)
     {
         if (cardNumber.Length < 13)
         {
@@ -39,7 +39,7 @@ public class CreditCardService : ICreditCardService
             alternate = !alternate;
         }
 
-        return (sum % 10 == 0);
+        return sum % 10 == 0;
     }
 
     public string GetCardType(string cardNumber)

@@ -1,4 +1,4 @@
-﻿using EShop.Application;
+﻿using EShop.Application.Services;
 using EShop.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -21,7 +21,7 @@ namespace EShopService.Controllers
         {
             try
             {
-                _creditCardService.ValidateCardNumber(cardNumber);
+                _creditCardService.ValidateCard(cardNumber);
                 return Ok(new { cardProvider = _creditCardService.GetCardType(cardNumber) });
             }
             catch (CardNumberTooLongException ex)
