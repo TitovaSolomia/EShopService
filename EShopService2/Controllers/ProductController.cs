@@ -5,62 +5,66 @@ using EShop.Application.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace EShopService.Controllers;
-
-[Route("api/[controller]")]
-[ApiController]
-
-public class ProductController : ControllerBase
+namespace EShopService.Controllers
 {
-
-    private readonly ProductService _service;
-
-    public ProductController(ProductService service)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProductController : ControllerBase
     {
-        _service = service;
-    }
+        private IProductService _productService;
+        public ProductController(IProductService productService)
+        {
+            _productService = productService;
+        }
 
-    [HttpGet]
-    public IActionResult GetAll() => Ok(_service.GetAllProducts());
+        // GET: api/<ProductController>
+        [HttpGet]
+        public async Task<ActionResult> Get()
+        {
+            var result = await _productService.GetAllAsync();
+            return Ok(result);
+        }
 
-    // GET api/<ProductController>
-    [HttpGet("{id}")]
-    public IActionResult Get(int id)
-    {
-        var product = _service.GetProductById(id);
-        if (product == null) return NotFound();
-        return Ok(product);
-    }
-    // POST api/<ProductController>
-    [HttpPost]
-    public IActionResult Post([FromBody] Product product)
-    {
-        _service.AddProduct(product);
-        return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
-    }
+        // GET api/<ProductController>/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult> Get(int id)
+        {
+            var result = await _productService.GetAsync(id);
+            if (result == null)
+            {
+                return NotFound();
+            }
 
-    // PUT api/<ProductController>
-    [HttpPut("{id}")]
-    public IActionResult Put(int id, [FromBody] Product product)
-    {
-        if (id != product.Id) return BadRequest();
-        _service.UpdateProduct(product);
-        return NoContent();
-    }
+            return Ok(result);
+        }
 
-    // DELETE api/<ProductController>
-    [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
-    {
-        _service.DeleteProduct(id);
-        return NoContent();
-    }
+        // POST api/<ProductController>
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] Product product)
+        {
+            var result = await _productService.Add(product);
 
-    // EXISTS api/<ProductController>
-    [HttpGet("exists/{id}")]
-    public ActionResult<bool> Exists(int id)
-    {
-        var exists = _service.GetProductById(id) != null;
-        return Ok(exists);
+            return Ok(result);
+        }
+
+        // PUT api/<ProductController>/5
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Put(int id, [FromBody] Product product)
+        {
+            var result = await _productService.Update(product);
+
+            return Ok(result);
+        }
+
+        // DELETE api/<ProductController>/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var product = await _productService.GetAsync(id);
+            product.Deleted = true;
+            var result = await _productService.Update(product);
+
+            return Ok(result);
+        }
     }
 }

@@ -3,61 +3,45 @@ using System.Collections.Generic;
 using EShop.Domain.Seeders;
 using EShop.Domain.Models;
 using EShop.Domain.Repositories;
+using EShop.Application.Services;
 
 
 namespace EShop.Domain.Services
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
-        private readonly IProductRepository _productRepository;
-
-        public ProductService(IProductRepository productRepository)
+        private IRepository _repository;
+        public ProductService(IProductRepository repository)
         {
-            _productRepository = productRepository;
+            _repository = repository;
         }
 
-        public Product GetProductById(int id)
+        public async Task<List<Product>> GetAllAsync()
         {
-            var product = _productRepository.GetById(id);
-            if (product == null)
-            {
-                throw new KeyNotFoundException("Product not found");
-            }
-            return product;
+            var result = await _repository.GetAllProductAsync();
+
+            return result;
         }
 
-        public List<Product> GetAllProducts()
+        public async Task<Product> GetAsync(int id)
         {
-            return _productRepository.GetAll();
+            var result = await _repository.GetProductAsync(id);
+
+            return result;
         }
 
-        public void AddProduct(Product product)
+        public async Task<Product> Update(Product product)
         {
-            if (string.IsNullOrWhiteSpace(product.Name) || product.Price <= 0)
-            {
-                throw new ArgumentException("Invalid product data");
-            }
-            _productRepository.Add(product);
+            var result = await _repository.UpdateProductAsync(product);
+
+            return result;
         }
 
-        public void UpdateProduct(Product product)
+        public async Task<Product> Add(Product product)
         {
-            var existingProduct = _productRepository.GetById(product.Id);
-            if (existingProduct == null)
-            {
-                throw new KeyNotFoundException("Product not found");
-            }
-            _productRepository.Update(product);
-        }
+            var result = await _repository.AddProductAsync(product);
 
-        public void DeleteProduct(int id)
-        {
-            var product = _productRepository.GetById(id);
-            if (product == null)
-            {
-                throw new KeyNotFoundException("Product not found");
-            }
-            _productRepository.Delete(id);
+            return result;
         }
     }
 }

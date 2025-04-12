@@ -5,54 +5,41 @@ using System.Text;
 using System.Threading.Tasks;
 using EShop.Domain.Seeders;
 using EShop.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EShop.Domain.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly List<Product> _products;
+        private readonly DataContext _context;
 
-        public ProductRepository()
+        public ProductRepository(DataContext dataContext)
         {
-            _products = EShopSeeder.GetInitialProducts();
+            _context = dataContext;
         }
 
-        public Product GetById(int id)
+        public async Task<Product> AddProductAsync(Product product)
         {
-            return _products.Find(p => p.Id == id);
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+            return product;
         }
 
-        public List<Product> GetAll()
+        public async Task<List<Product>> GetAllProductAsync()
         {
-            return _products;
+            return await _context.Products.ToListAsync();
         }
 
-        public void Add(Product product)
+        public async Task<Product> GetProductAsync(int id)
         {
-            _products.Add(product);
+            return await _context.Products.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
 
-        public void Update(Product product)
+        public async Task<Product> UpdateProductAsync(Product product)
         {
-            var existingProduct = GetById(product.Id);
-            if (existingProduct != null)
-            {
-                existingProduct.Name = product.Name;
-                existingProduct.Ean = product.Ean;
-                existingProduct.Price = product.Price;
-                existingProduct.Stock = product.Stock;
-                existingProduct.Sku = product.Sku;
-                existingProduct.CategoryId = product.CategoryId;
-            }
-        }
-
-        public void Delete(int id)
-        {
-            var product = GetById(id);
-            if (product != null)
-            {
-                _products.Remove(product);
-            }
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+            return product;
         }
     }
 }
