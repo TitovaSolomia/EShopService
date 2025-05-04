@@ -10,7 +10,7 @@ namespace EShop.Domain.Services
 {
     public class ProductService : IProductService
     {
-        private IRepository _repository;
+        private IProductRepository _repository;
         public ProductService(IProductRepository repository)
         {
             _repository = repository;
